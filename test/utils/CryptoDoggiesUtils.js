@@ -1,0 +1,44 @@
+module.exports = function (CryptoDoggies, accounts) {
+  function checkTotalSupply(expectedValue) {
+    it(`totalSupply should be equal to ${expectedValue}`, function (done) {
+      CryptoDoggies.deployed().then(function (instance) {
+        instance.totalSupply
+          .call()
+          .then(function (totalSupply) {
+            assert.equal(
+              totalSupply,
+              expectedValue,
+              `totalSupply is not equal to ${expectedValue}, but is ${totalSupply}.`
+            );
+          })
+          .then(done)
+          .catch(done);
+      });
+    });
+  }
+
+  function checkDoggyCreation(name) {
+    // console.log("CONSOLE LOG:", accounts);
+    it(`createToken should create a random doggy named ${name}`, function (done) {
+      CryptoDoggies.deployed().then(async function (instance) {
+        await instance.methods["createToken(string)"](name, {
+          from: accounts[0],
+        })
+          .then(function (result) {
+            assert.include(
+              result.logs[0].event,
+              "TokenCreated",
+              "TokenCreated event was not triggered."
+            );
+          })
+          .then(done)
+          .catch(done);
+      });
+    });
+  }
+
+  return {
+    checkTotalSupply: checkTotalSupply,
+    checkDoggyCreation: checkDoggyCreation,
+  };
+};
